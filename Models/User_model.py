@@ -15,3 +15,6 @@ class Users:
     def __str__(self):
         return (f"User({self.id}, Name: {self.name}, Email: {self.email}, "
                 f"Role: {self.role}, Created At: {self.created_at})")
+    
+    def get_role(self):
+        return self.role

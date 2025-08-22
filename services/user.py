@@ -3,8 +3,12 @@ from repositories.user_repo import UserRepository
 
 
 class UserManager:
-    email_list = []
 
+    email_list = []
+    
+    def __init__(self, user_repo : UserRepository):
+        self.user_repo = user_repo
+    
     def create_user(self):
         name = input("Enter Your Name: ")
         email = input("Enter Email Id: ")
@@ -36,8 +40,9 @@ class UserManager:
         user = Users(name, email, phone_number, role, password)
 
         # Add user to repository
-        repo = UserRepository()
-        repo.add_user(user)
+        # repo = UserRepository()
+        # repo.add_user(user)
+        self.user_repo.add_user(user)
         UserManager.email_list.append(email)
         print(f"{role} successfully created!")
         return user
@@ -50,8 +55,11 @@ class UserManager:
             print("Email not found! Please create an account first.")
             return None
 
-        repo = UserRepository()
-        user = repo.get_user(email)
+        # repo = UserRepository()
+        # user = repo.get_user(email)
+        
+        user = self.user_repo.get_user(email)
+
         if user and user.password == password:
             print(f"{user.username} successfully logged in!")
             return user
