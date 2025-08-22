@@ -1,6 +1,6 @@
 from Models.User_model import Users
 from repositories.user_repo import UserRepository
-
+from utils.helper import HelperFunctions as HF
 
 class UserManager:
 
@@ -9,6 +9,7 @@ class UserManager:
     def __init__(self, user_repo : UserRepository):
         self.user_repo = user_repo
     
+    @HF.safe_action_decorator
     def create_user(self):
         name = input("Enter Your Name: ")
         email = input("Enter Email Id: ")
@@ -47,6 +48,7 @@ class UserManager:
         print(f"{role} successfully created!")
         return user
 
+    @HF.safe_action_decorator
     def login_user(self):
         email = input("Enter Your Email: ")
         password = input("Enter Your Password: ")
