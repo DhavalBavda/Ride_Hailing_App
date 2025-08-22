@@ -7,3 +7,6 @@ class VehicleRepository:
 
     def get_vehicle(self,vehicle_id):
         return self.vehicles.get(vehicle_id)
+    
+    def list_vehicles(self):
+        return list(self.vehicles.values())
