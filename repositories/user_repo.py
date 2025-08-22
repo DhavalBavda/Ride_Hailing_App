@@ -7,3 +7,6 @@ class UserRepository:
 
     def get_user(self,email):
         return self.users.get(email)
+    
+    def list_users(self):
+        return list(self.users.values())

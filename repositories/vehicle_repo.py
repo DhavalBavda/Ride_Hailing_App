@@ -19,3 +19,6 @@ class VehicleRepository:
             del self.vehicles[vehicle_id]
             return True
         return False
+    
+    def list_vehicles(self):
+        return list(self.vehicles.values())
