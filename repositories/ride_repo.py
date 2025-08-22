@@ -10,3 +10,4 @@ class RideRepository:
     
     def list_rides(self):
         return list(self.rides.values())
+    

@@ -40,4 +40,6 @@ class RideService:
             if not ride:
                 raise ValueError("Ride not found")
             return ride
+        def list_rides(self):
+          return self.ride_repo.get_all_rides()
              
