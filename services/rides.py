@@ -19,6 +19,14 @@ class RideService:
             self.ride_repo.add_ride(ride)
             return ride
         
+        def accept_ride(self, ride_id: str, driver_id: str):
+            ride = self.ride_repo.get_ride(ride_id)
+            driver = self.user_repo.get_user(driver_id)
+            if not ride or not driver:
+                raise ValueError("Invalid ride or driver")
+            ride.driver_id = driver_id
+            ride.status = "accepted"
+            return ride
 
         def start_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
@@ -27,19 +35,30 @@ class RideService:
 
         def complete_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
-            ride.status = "completed"
-            return ride
+            if not ride:
+                raise ValueError("Ride not found")
+            elif ride.status != "in_progress":
+                raise ValueError("Ride is not in progress")
+            else:
+                ride.status = "completed"
+                return ride
 
         def cancel_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
-            ride.status = "cancelled"
-            return ride
+            if not ride:
+                raise ValueError("Ride not found")
+            elif ride.status in ["completed", "cancelled"]:
+                raise ValueError("Cannot cancel a completed or already cancelled ride")
+            else:
+                ride.status = "cancelled"
+                return ride
         
         def view_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
             if not ride:
                 raise ValueError("Ride not found")
             return ride
+        
         def list_rides(self):
           return self.ride_repo.get_all_rides()
              

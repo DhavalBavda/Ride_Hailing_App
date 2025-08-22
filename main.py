@@ -14,19 +14,32 @@ def showMenu(req):
     elif req == 2:
         print("\nRide Hailing App ------ Rider Menu")
         print("1. Request Ride")
-        print("2. Complete Ride")
-        print("3. Cancel Ride")
-        print("4. View Rides")
-        print("5. Logout")
+        print("2. View Ride By ID")
+        print("3. View My Rides")
+        print("4. Complete Ride")
+        print("5. Cancel Ride")
+        print("6. Logout")
+    
     elif req == 3:
         print("\nRide Hailing App ------ Driver Menu")
         print("1. View Ride Requests")
-        print("2. Start Ride")
-        print("3. Add Vehicle")
-        print("4. Update Vehicle")
-        print("5. Logout")
+        print("2. View My Rides")
+        print("3. View Ride By ID")
+        print("4. Accept Ride")
+        print("5. Start Ride")
+        print("6. Add Vehicle")
+        print("7. Update Vehicle")
+        print("8. Logout")
 
-
+# Safe wrapper for any service action
+def safe_action(action, *args, **kwargs):
+    try:
+        return action(*args, **kwargs)
+    except ValueError as e:
+        print(f"Error: {e}")
+        return None
+    
+# Main function to run the application
 def main():
 
     # Initialize Repositories
@@ -44,12 +57,16 @@ def main():
         if not loggedInUser:
             # Show main menu if no user is logged in
             showMenu(1)
-            choice = int(input("Enter your choice: "))
+            try:
+                choice = int(input("Enter your choice: "))
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+                continue
 
             if choice == 1:  # Register
-                loggedInUser = user_manager.create_user()
+                loggedInUser = safe_action(user_manager.create_user())
             elif choice == 2:  # Login
-                loggedInUser = user_manager.login_user()
+                loggedInUser = safe_action(user_manager.login_user())
             elif choice == 3:   
                 print("Exiting the application. Goodbye!")
                 break
@@ -63,22 +80,79 @@ def main():
             if role == "Driver":
                 while True:
                     showMenu(3)
-                    driver_choice = int(input("Enter your choice: "))
+                    try:
+                        driver_choice = int(input("Enter your choice: "))
+                    except ValueError:
+                        print("Invalid input. Please enter a number.")
+                        continue
+
+                    # View ride requests
                     if driver_choice == 1:
 
-                        print("Viewing ride requests... (Functionality to be implemented)")
+                        rides = safe_action(ride_service.list_rides()) or []
+                        if rides and len(rides) and any(ride.status == "requested" for ride in rides):
+                            for ride in rides:
+                                if ride.status == "requested":
+                                    print(f"Ride ID: {ride.id}, Rider: {ride.rider_id}, Pickup: {ride.pickup}, Drop: {ride.drop}")
+                                    print(f"Fare: {ride.fare}, Status: {ride.status}")
+                        else:
+                            print("No ride requests available.")
+
+                    # View my rides
                     elif driver_choice == 2:
+                        rides = safe_action(ride_service.list_rides()) or []
+                        if rides and len(rides) and any(ride.driver_id == loggedInUser.user_id for ride in rides):
+                            for ride in rides:
+                                if ride.driver_id == loggedInUser.user_id:
+                                    print(f"Ride ID: {ride.id}, Status: {ride.status}, Pickup: {ride.pickup}, Drop: {ride.drop}")
+                                    print(f"Fare: {ride.fare}, Created At: {ride.created_at}")
+                        else:
+                            print("No rides found.")
+                    
+                    # View ride by ID
+                    elif driver_choice == 3:
+
+                        ride_id = input("Enter Ride ID to view: ")
+                        ride = safe_action(ride_service.view_ride(ride_id))
+                        if ride:
+                            print(f"Ride ID: {ride.id}, Status: {ride.status}, Rider: {ride.rider_id}, Pickup: {ride.pickup}, Drop: {ride.drop}")
+                            print(f"Fare: {ride.fare}, Created At: {ride.created_at}")
+                        else:
+                            print("Ride not found.")
+
+                    # Accept ride
+                    elif driver_choice == 4:
+                        rides = safe_action(ride_service.list_rides()) or []
+                        if rides:
+                            for ride in rides:
+                                if ride.status == "requested":
+                                    print(f"Ride ID: {ride.id}, Rider: {ride.rider_id}, Pickup: {ride.pickup}, Drop: {ride.drop}")
+                                    print(f"Fare: {ride.fare}, Status: {ride.status}")
+                            
+                            ride_id = input("Enter Ride ID to accept: ")
+                            ride = ride_service.accept_ride(ride_id, loggedInUser.user_id)
+                            if ride:
+                                print(f"Ride {ride.id} accepted.")
+                            else:
+                                print("Ride not found.")
+                        else:
+                            print("No ride requests available.")
+                    
+                    # Start ride
+                    elif driver_choice == 5:
 
                         ride_id = input("Enter Ride ID to start: ")
                         ride = ride_service.start_ride(ride_id)
                         if ride:
-                            print(f"Ride {ride.ride_id} started.")
+                            print(f"Ride {ride.id} started.")
                         else:
                             print("Ride not found.")
 
-                    elif driver_choice == 3:
+                    # Add vehicle
+                    elif driver_choice == 6:
 
-                        driver_id = loggedInUser.id
+                        driver_id = loggedInUser.user_id
+                        print("Enter vehicle details:")
                         brand = input("Enter vehicle brand: ")
                         model = input("Enter vehicle model: ")
                         year = input("Enter vehicle year: ")
@@ -87,28 +161,39 @@ def main():
                         vehicle = vehicle_service.register_vehicle(driver_id, brand, model, year, plate_number, color)
                         print(f"Vehicle {vehicle.plate_number} registered successfully.")
 
-                    elif driver_choice == 4:
+                    # Update vehicle
+                    elif driver_choice == 7:
+
                         vehicle_id = input("Enter Vehicle ID to update: ")
-                        print("Enter new details (leave blank to keep current value):")
-                        brand = input("New Brand: ")
-                        model = input("New Model: ")
-                        year = input("New Year: ")
-                        plate_number = input("New Plate Number: ")
-                        color = input("New Color: ")
-                        updates = {k: v for k, v in {
-                            "brand": brand,
-                            "model": model,
-                            "year": year,
-                            "plate_number": plate_number,
-                            "color": color
-                        }.items() if v}
-                        updated_vehicle = vehicle_service.update_vehicle_info(vehicle_id, **updates)
-                        if updated_vehicle:
-                            print(f"Vehicle {updated_vehicle.plate_number} updated successfully.")
-                        else:
+                        vehicle = vehicle_service.get_vehicle_by_id(vehicle_id)
+                        if not vehicle:
                             print("Vehicle not found.")
+                            continue
+                        else:
+                            if vehicle.driver_id != loggedInUser.user_id:
+                                print("You can only update your own vehicles.")
+                                continue
+                            else:
+                                print("Enter new details (leave blank to keep current value):")
+                                brand = input("New Brand: ")
+                                model = input("New Model: ")
+                                year = input("New Year: ")
+                                plate_number = input("New Plate Number: ")
+                                color = input("New Color: ")
+                                updates = {k: v for k, v in {
+                                    "brand": brand,
+                                    "model": model,
+                                    "year": year,
+                                    "plate_number": plate_number,
+                                    "color": color
+                                }.items() if v}
+                                updated_vehicle = vehicle_service.update_vehicle_info(vehicle_id, **updates)
+                                if updated_vehicle:
+                                    print(f"Vehicle {updated_vehicle.plate_number} updated successfully.")
+                                else:
+                                    print("Vehicle not updated.")
                     
-                    elif driver_choice == 5:
+                    elif driver_choice == 8:
 
                         print("Logging out...")
                         loggedInUser = None
@@ -120,39 +205,65 @@ def main():
             elif role == "Rider":
                 while True:
                     showMenu(2)
-                    rider_choice = int(input("Enter your choice: "))
+                    try:
+                        rider_choice = int(input("Enter your choice: "))
+                    except ValueError:
+                        print("Invalid input. Please enter a number.")
+                        continue
 
+                    # Request ride
                     if rider_choice == 1:
 
                         pickup = input("Enter pickup location: ")
                         drop = input("Enter drop location: ")
-                        ride = ride_service.request_ride(loggedInUser.user_id, pickup, drop)
+                        ride = ride_service.request_ride(loggedInUser.user_id, None, pickup, drop)
                         if ride:
-                            print(f"Ride {ride.ride_id} created successfully.")
+                            print(f"Ride {ride.id} created successfully.")
                         else:
                             print("No drivers available at the moment.")
                     
+                    # View ride by ID
                     elif rider_choice == 2:
+                        ride_id = input("Enter Ride ID to view: ")
+                        ride = ride_service.view_ride(ride_id)
+                        if ride:
+                            print(f"Ride ID: {ride.id}, Status: {ride.status}, Driver: {ride.driver_id}, Pickup: {ride.pickup}, Drop: {ride.drop}")
+                        else:
+                            print("Ride not found.")
+
+                    # My Rides
+                    elif rider_choice == 3:
+                        rides = ride_service.list_rides()
+                        if rides:
+                            for ride in rides:
+                                if ride.rider_id == loggedInUser.user_id:
+                                    # Display rides for the logged-in user
+                                    print(f"Ride ID: {ride.id}, Status: {ride.status}")
+                                    print(f"Pickup: {ride.pickup}, Drop: {ride.drop}, Fare: {ride.fare}")
+                        else:
+                            print("No rides found.")
+
+                    # Complete Ride
+                    elif rider_choice == 4:
 
                         ride_id = input("Ride ID: ")
                         ride = ride_service.complete_ride(ride_id)
                         if ride:
-                            print(f"Ride {ride.ride_id} completed.")
+                            print(f"Ride {ride.id} completed.")
                         else:
                             print("Ride not found.")
 
-                    elif rider_choice == 3:
+                    # Cancel Ride
+                    elif rider_choice == 5:
                         
                         ride_id = input("Ride ID: ")
                         ride = ride_service.cancel_ride(ride_id)
                         if ride:
-                            print(f"Ride {ride.ride_id} cancelled.")
+                            print(f"Ride {ride.id} cancelled.")
                         else:
                             print("Ride not found.")
                         
-                    elif rider_choice == 4:
-                        print("Viewing rides... (Functionality to be implemented)")
-                    elif rider_choice == 5:
+                    elif rider_choice == 6:
                         print("Logging out...")
                         loggedInUser = None
                         break
