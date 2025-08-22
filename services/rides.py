@@ -65,5 +65,5 @@ class RideService:
             return ride
 
         def list_rides(self):
-          return self.ride_repo.get_all_rides()
+          return self.ride_repo.list_rides()
              

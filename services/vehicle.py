@@ -5,6 +5,9 @@ class VehicleService:
     def __init__(self, vehicle_repo : VehicleRepository):
         self.vehicle_repo = vehicle_repo
 
+    def get_all_vehicles(self):
+        return self.vehicle_repo.list_vehicles()
+
     def register_vehicle(self, driver_id, brand, model, year, plate_number,color):
         new_vehicle = Vehicle(driver_id, brand, model, year, plate_number, color)
         self.vehicle_repo.add_vehicle(new_vehicle)

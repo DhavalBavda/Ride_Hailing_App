@@ -6,7 +6,7 @@ class VehicleRepository:
         self.vehicles[vehicle.id] = vehicle
 
     def get_vehicle(self,vehicle_id):
-        return self.vehicles.get(vehicle_id)
+        return self.vehicles.get(vehicle_id, None)
     
     def update_vehicle(self,vehicle):
         if vehicle.id in self.vehicles:

@@ -28,8 +28,9 @@ def showMenu(req):
         print("4. Accept Ride")
         print("5. Start Ride")
         print("6. Add Vehicle")
-        print("7. Update Vehicle")
-        print("8. Logout")
+        print("7. View My Vehicles")
+        print("8. Update Vehicle")
+        print("9. Logout")
 
 # Safe wrapper for any service action
 def safe_action(action, *args, **kwargs):
@@ -101,9 +102,9 @@ def main():
                     # View my rides
                     elif driver_choice == 2:
                         rides = safe_action(ride_service.list_rides) or []
-                        if rides and len(rides) and any(ride.driver_id == loggedInUser.user_id for ride in rides):
+                        if rides and len(rides) and any(ride.driver_id == loggedInUser.id for ride in rides):
                             for ride in rides:
-                                if ride.driver_id == loggedInUser.user_id:
+                                if ride.driver_id == loggedInUser.id:
                                     print(f"Ride ID: {ride.id}, Status: {ride.status}, Pickup: {ride.pickup}, Drop: {ride.drop}")
                                     print(f"Fare: {ride.fare}, Created At: {ride.created_at}")
                         else:
@@ -130,7 +131,7 @@ def main():
                                     print(f"Fare: {ride.fare}, Status: {ride.status}")
                             
                             ride_id = input("Enter Ride ID to accept: ")
-                            ride = safe_action(ride_service.accept_ride,ride_id, loggedInUser.user_id)
+                            ride = safe_action(ride_service.accept_ride,ride_id, loggedInUser.id)
                             if ride:
                                 print(f"Ride {ride.id} accepted.")
                             else:
@@ -151,7 +152,7 @@ def main():
                     # Add vehicle
                     elif driver_choice == 6:
 
-                        driver_id = loggedInUser.user_id
+                        driver_id = loggedInUser.id
                         print("Enter vehicle details:")
                         brand = input("Enter vehicle brand: ")
                         model = input("Enter vehicle model: ")
@@ -161,16 +162,26 @@ def main():
                         vehicle = safe_action(vehicle_service.register_vehicle, driver_id, brand, model, year, plate_number, color)
                         if vehicle : 
                             print(f"Vehicle {vehicle.plate_number} registered successfully.")
-
-                    # Update vehicle
+                    
+                    # View my vehicles
                     elif driver_choice == 7:
+                        vehicles = safe_action(vehicle_service.get_all_vehicles) or []
+                        if vehicles:
+                            for vehicle in vehicles:
+                                if vehicle.driver_id == loggedInUser.id:
+                                    print(f"Vehicle ID: {vehicle.id}, Brand: {vehicle.brand}, Model: {vehicle.model}, Year: {vehicle.year}, Plate Number: {vehicle.plate_number}, Color: {vehicle.color}")
+                        else:
+                            print("No vehicles found.")
+                    
+                    # Update vehicle
+                    elif driver_choice == 8:
 
                         vehicle_id = input("Enter Vehicle ID to update: ")
                         vehicle = safe_action(vehicle_service.get_vehicle_by_id, vehicle_id)
                         if not vehicle:
                             print("Vehicle not found.")
                             continue
-                        if vehicle.driver_id != loggedInUser.user_id:
+                        if vehicle.driver_id != loggedInUser.id:
                             print("You can only update your own vehicles.")
                             continue
                         
@@ -193,7 +204,7 @@ def main():
                         else:
                             print("Vehicle not updated.")
                     
-                    elif driver_choice == 8:
+                    elif driver_choice == 9:
 
                         print("Logging out...")
                         loggedInUser = None
@@ -216,7 +227,7 @@ def main():
 
                         pickup = input("Enter pickup location: ")
                         drop = input("Enter drop location: ")
-                        ride = safe_action(ride_service.request_ride, loggedInUser.user_id, None, pickup, drop)
+                        ride = safe_action(ride_service.request_ride, loggedInUser.id, None, pickup, drop)
                         if ride:
                             print(f"Ride {ride.id} created successfully.")
                         else:
@@ -236,7 +247,7 @@ def main():
                         rides = safe_action(ride_service.list_rides) or []
                         if rides:
                             for ride in rides:
-                                if ride.rider_id == loggedInUser.user_id:
+                                if ride.rider_id == loggedInUser.id:
                                     # Display rides for the logged-in user
                                     print(f"Ride ID: {ride.id}, Status: {ride.status}")
                                     print(f"Pickup: {ride.pickup}, Drop: {ride.drop}, Fare: {ride.fare}")

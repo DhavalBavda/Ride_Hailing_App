@@ -61,7 +61,7 @@ class UserManager:
         user = self.user_repo.get_user(email)
 
         if user and user.password == password:
-            print(f"{user.username} successfully logged in!")
+            print(f"{user.name} successfully logged in!")
             return user
         else:
             print("Incorrect password! Please try again.")

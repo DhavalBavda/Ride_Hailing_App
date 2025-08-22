@@ -6,7 +6,7 @@ class RideRepository:
         self.rides[ride.id] = ride
     
     def get_ride(self,ride_id):
-        return self.rides[ride_id]
+        return self.rides.get(ride_id, None)
     
     def list_rides(self):
         return list(self.rides.values())
