@@ -7,3 +7,6 @@ class RideRepository:
     
     def get_ride(self,ride_id):
         return self.rides[ride_id]
+    
+    def list_rides(self):
+        return list(self.rides.values())
