@@ -95,3 +95,10 @@ python main.py
 * All data is **temporary** and stored in memory only during runtime. Exiting the program clears all users, rides, and vehicles.
 * Input validation and exception handling are implemented to prevent crashes from invalid operations or missing data.
 * The project can be extended to add persistence via a database or a web interface in the future.
+
+## Contributors
+
+* **Dhaval Bavda** - [GitHub](https://github.com/DhavalBavda)
+* **Arjun Prajapati** - [GitHub](https://github.com/ArjunPraja)
+* **Sajana** - [GitHub](https://github.com/SanjanaV5103)
+* **Janhwi** - [GitHub](https://github.com/JK-3)
