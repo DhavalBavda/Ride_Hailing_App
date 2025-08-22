@@ -30,8 +30,13 @@ class RideService:
 
         def start_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
-            ride.status = "in_progress"
-            return ride
+            if not ride:
+                raise ValueError("Ride not found")
+            elif ride.status != "accepted":
+                raise ValueError("Ride not accepted yet")
+            else:
+                ride.status = "in_progress"
+                return ride
 
         def complete_ride(self, ride_id: str):
             ride = self.ride_repo.get_ride(ride_id)
@@ -58,7 +63,7 @@ class RideService:
             if not ride:
                 raise ValueError("Ride not found")
             return ride
-        
+
         def list_rides(self):
           return self.ride_repo.get_all_rides()
              
