@@ -68,6 +68,9 @@ ride_hailing_app/
 │   ├── rides.py            # Business logic for rides
 │   ├── user.py             # Business logic for users
 │   └── vehicle.py          # Business logic for vehicles
+|
+├── utils/
+│   ├── helper.py           # Helper functions
 │
 └── README.md               # Documentation
 ```
