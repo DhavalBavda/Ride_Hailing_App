@@ -2,8 +2,8 @@ from Models.vehicles_model import Vehicle
 from repositories.vehicle_repo import VehicleRepository
 
 class VehicleService:
-    def __init__(self):
-        self.vehicle_repo = VehicleRepository()
+    def __init__(self, vehicle_repo : VehicleRepository):
+        self.vehicle_repo = vehicle_repo
 
     def register_vehicle(self, driver_id, brand, model, year, plate_number,color):
         new_vehicle = Vehicle(driver_id, brand, model, year, plate_number, color)
@@ -21,6 +21,3 @@ class VehicleService:
             if hasattr(vehicle,key): setattr(vehicle,key,value)
         self.vehicle_repo.update_vehicle(vehicle)
         return vehicle
-    
-    def delete_vehicle(self, vehicle_id):
-        return self.vehicle_repo.remove_vehicle(vehicle_id)
