@@ -34,3 +34,10 @@ class RideService:
             ride = self.ride_repo.get_ride(ride_id)
             ride.status = "cancelled"
             return ride
+        
+        def view_ride(self, ride_id: str):
+            ride = self.ride_repo.get_ride(ride_id)
+            if not ride:
+                raise ValueError("Ride not found")
+            return ride
+             
