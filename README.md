@@ -67,7 +67,7 @@ ride_hailing_app/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/ride-hailing-cli.git
+gh repo clone ArjunPraja/Ride_Hailing_App
 cd ride-hailing-cli
 ```
 
