@@ -10,24 +10,41 @@ class RideService:
             self.ride_repo = ride_repo
             self.user_repo = user_repo
             self.vehicle_repo = vehicle_repo
-
+        
         @HF.safe_action_decorator
-        def request_ride(self, rider_id: str, driver_id: str, pickup: str, drop: str):
-            rider = self.user_repo.get_user(rider_id)
-            driver = self.user_repo.get_user(driver_id)
+        def request_ride(self, rider_email: str, pickup: str, drop: str):
+            rider = self.user_repo.get_user_by_email(rider_email)
             if not rider:
-                raise ValueError("Invalid rider or driver")
-            ride = RidesModel(str(uuid.uuid4()), rider, driver, pickup, drop, status="requested")
+                raise ValueError("Invalid rider")
+
+            # Simple driver assignment
+            driver = next((u for u in self.user_repo.users.values() if u.role == "Driver"), None)
+            if not driver:
+                raise ValueError("No drivers available at the moment")
+
+            # Example fixed fare
+            fare = 100  
+
+            # Correct argument order
+            ride = RidesModel(
+                rider_id=rider.id,
+                driver_id=driver.id,
+                pickup=pickup,
+                drop_location=drop,
+                status="requested",
+                fare=fare
+            )
+
             self.ride_repo.add_ride(ride)
             return ride
         
         @HF.safe_action_decorator
-        def accept_ride(self, ride_id: str, driver_id: str):
+        def accept_ride(self, ride_id: str, driver_email: str):
             ride = self.ride_repo.get_ride(ride_id)
-            driver = self.user_repo.get_user(driver_id)
+            driver = self.user_repo.get_user_by_email(driver_email)
             if not ride or not driver:
                 raise ValueError("Invalid ride or driver")
-            ride.driver_id = driver_id
+            ride.driver_id = driver.id
             ride.status = "accepted"
             return ride
         

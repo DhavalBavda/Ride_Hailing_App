@@ -60,7 +60,8 @@ class UserManager:
         # repo = UserRepository()
         # user = repo.get_user(email)
         
-        user = self.user_repo.get_user(email)
+        user = self.user_repo.get_user_by_email(email)
+
 
         if user and user.password == password:
             print(f"{user.name} successfully logged in!")
