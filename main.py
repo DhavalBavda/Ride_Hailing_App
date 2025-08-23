@@ -123,7 +123,7 @@ def main():
                                     print(f"Fare: {ride.fare}, Status: {ride.status}")
                             
                             ride_id = input("Enter Ride ID to accept: ")
-                            ride = ride_service.accept_ride(ride_id, loggedInUser.id)
+                            ride = ride_service.accept_ride(ride_id, loggedInUser.email)
                             if ride:
                                 print(f"Ride {ride.id} accepted.")
                             else:
@@ -219,7 +219,7 @@ def main():
 
                         pickup = input("Enter pickup location: ")
                         drop = input("Enter drop location: ")
-                        ride = ride_service.request_ride(loggedInUser.id, None, pickup, drop)
+                        ride = ride_service.request_ride(loggedInUser.email, pickup, drop)
                         if ride:
                             print(f"Ride {ride.id} created successfully.")
                         else:
