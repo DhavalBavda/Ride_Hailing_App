@@ -17,18 +17,12 @@ class RideService:
             if not rider:
                 raise ValueError("Invalid rider")
 
-            # Simple driver assignment
-            driver = next((u for u in self.user_repo.users.values() if u.role == "Driver"), None)
-            if not driver:
-                raise ValueError("No drivers available at the moment")
-
-            # Example fixed fare
             fare = 100  
 
             # Correct argument order
             ride = RidesModel(
                 rider_id=rider.id,
-                driver_id=driver.id,
+                driver_id=None,
                 pickup=pickup,
                 drop_location=drop,
                 status="requested",
@@ -44,6 +38,8 @@ class RideService:
             driver = self.user_repo.get_user_by_email(driver_email)
             if not ride or not driver:
                 raise ValueError("Invalid ride or driver")
+            if ride.driver_id is not None:
+                raise ValueError("Ride already accepted by another driver")
             ride.driver_id = driver.id
             ride.status = "accepted"
             return ride
